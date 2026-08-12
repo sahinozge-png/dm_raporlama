@@ -1,0 +1,237 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="plc_data_reader_cross_app.MainWindow"
+        Title="PLC Endüstriyel SCADA &amp; Gerçek Zamanlı İzleme" Width="1150" Height="700"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+
+    <Grid ColumnDefinitions="190, *">
+        <!-- SOL YAN MENÜ -->
+        <Border Grid.Column="0" Background="{DynamicResource SystemControlPageBackgroundMediumBrush}" Padding="10">
+            <StackPanel Spacing="8">
+                <TextBlock Text="🏭 SCADA PANEL" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+                
+                <TextBlock Text="Aktif Cihaz / PLC:" FontSize="11"/>
+                <ComboBox x:Name="CmbActiveDevices" FontSize="11" HorizontalAlignment="Stretch" SelectionChanged="OnSelectedDeviceChanged"/>
+                <Separator Margin="0,5"/>
+
+                <Button x:Name="BtnNavLive" Content="📊 Canlı Akış" Click="OnNavLiveClicked" HorizontalAlignment="Stretch" FontSize="12"/>
+                <Button x:Name="BtnNavReport" Content="📈 Raporlar" Click="OnNavReportClicked" HorizontalAlignment="Stretch" FontSize="12"/>
+                <Button x:Name="BtnNavTrends" Content="📉 Trend &amp; Kıyas" Click="OnNavTrendsClicked" HorizontalAlignment="Stretch" FontSize="12"/>
+                <Button x:Name="BtnNavAlarms" Content="🚨 Alarmlar" Click="OnNavAlarmsClicked" HorizontalAlignment="Stretch" FontSize="12"/>
+                <Button x:Name="BtnNavSettings" Content="⚙️ Ayarlar" Click="OnNavSettingsClicked" HorizontalAlignment="Stretch" FontSize="12"/>
+            </StackPanel>
+        </Border>
+
+        <!-- SAĞ ANA İÇERİK -->
+        <Grid Grid.Column="1" Margin="10" RowDefinitions="Auto, *">
+            
+            <!-- SAĞ ÜST BAŞLIK VE TEMA DEĞİŞTİRME BUTONU -->
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,8">
+                <TextBlock Text="Endüstriyel Otomasyon &amp; Veri İzleme Sistemi" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                <Button Grid.Column="1" x:Name="BtnThemeToggle" Content="🌙 Koyu Tema" Click="OnThemeToggleClicked" FontWeight="Bold" Padding="10,4" FontSize="12"/>
+            </Grid>
+
+            <!-- CANLI İZLEME SAYFASI -->
+            <Grid Grid.Row="1" x:Name="PageLive" RowDefinitions="Auto, Auto, *" Margin="0" IsVisible="True">
+                <Border Grid.Row="0" Padding="8" CornerRadius="6" Margin="0,0,0,8">
+                    <TextBlock Text="⚡ Canlı Tesis Veri Akış Paneli (DB100)" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </Border>
+
+                <Grid Grid.Row="1" ColumnDefinitions="*, *" Margin="0,0,0,8">
+                    <Border Grid.Column="0" CornerRadius="6" Margin="4" Padding="10">
+                        <StackPanel Spacing="3" HorizontalAlignment="Center">
+                            <TextBlock Text="📊 Proses Değeri" FontSize="11" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="TxtProcessValue" Text="0" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" CornerRadius="6" Margin="4" Padding="10">
+                        <StackPanel Spacing="3" HorizontalAlignment="Center">
+                            <TextBlock Text="🔌 Durum / Kaynak" FontSize="11" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="TxtSource" Text="Bekleniyor..." FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="2" CornerRadius="6" Padding="8">
+                    <ListBox x:Name="LiveLogListBox" FontFamily="Consolas" FontSize="12"/>
+                </Border>
+            </Grid>
+
+            <!-- RAPORLAR SAYFASI -->
+            <Grid Grid.Row="1" x:Name="PageReport" RowDefinitions="Auto, *" Margin="0" IsVisible="False">
+                <Border Grid.Row="0" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                    <StackPanel Spacing="8">
+                        <WrapPanel Orientation="Horizontal">
+                            <TextBlock Text="Yıl:" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="12"/>
+                            <ComboBox x:Name="CmbYear" Width="80" Margin="0,0,8,0" FontSize="12"/>
+
+                            <TextBlock Text="Ay:" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="12"/>
+                            <ComboBox x:Name="CmbMonth" Width="70" Margin="0,0,8,0" FontSize="12"/>
+
+                            <TextBlock Text="Gün:" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="12"/>
+                            <ComboBox x:Name="CmbDay" Width="60" Margin="0,0,8,0" FontSize="12"/>
+
+                            <TextBlock Text="Başlangıç:" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="12"/>
+                            <ComboBox x:Name="CmbStartHour" Width="60" Margin="0,0,2,0" FontSize="12"/>
+                            <TextBlock Text=":" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                            <ComboBox x:Name="CmbStartMinute" Width="60" Margin="0,0,8,0" FontSize="12"/>
+
+                            <TextBlock Text="Bitiş:" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="12"/>
+                            <ComboBox x:Name="CmbEndHour" Width="60" Margin="0,0,2,0" FontSize="12"/>
+                            <TextBlock Text=":" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                            <ComboBox x:Name="CmbEndMinute" Width="60" Margin="0,0,10,0" FontSize="12"/>
+
+                            <Button Content="Filtrele &amp; Listele" Click="OnQueryArchiveClicked" FontWeight="Bold" Padding="10,4" FontSize="12" Margin="0,0,5,0"/>
+                            <Button Content="📁 CSV Olarak Dışa Aktar" Click="OnExportCsvClicked" FontWeight="Bold" Padding="10,4" FontSize="12"/>
+                        </WrapPanel>
+                        <TextBlock x:Name="TxtStatsSummary" Text="Zaman aralığını yukarıdan seçip listeleyin." FontSize="12" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" CornerRadius="6" Padding="8">
+                    <ListBox x:Name="ArchiveListBox" FontFamily="Consolas" FontSize="12"/>
+                </Border>
+            </Grid>
+
+            <!-- TRENDLER & GRAFİK SEÇİM SAYFASI -->
+            <Grid Grid.Row="1" x:Name="PageTrends" RowDefinitions="Auto, *" Margin="0" IsVisible="False">
+                <Border Grid.Row="0" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="📉 Grafik Seçimi ve Trend Kıyaslama" FontSize="14" FontWeight="Bold"/>
+                        <WrapPanel Orientation="Horizontal">
+                            <TextBlock Text="Grafik Tipi:" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="12"/>
+                            <ComboBox x:Name="CmbChartType" Width="160" Margin="0,0,12,0" FontSize="12"/>
+
+                            <TextBlock Text="1. Gün:" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="12"/>
+                            <ComboBox x:Name="CmbTrendDay1" Width="60" Margin="0,0,12,0" FontSize="12"/>
+
+                            <TextBlock Text="2. Gün (Kıyas):" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="12"/>
+                            <ComboBox x:Name="CmbTrendDay2" Width="60" Margin="0,0,12,0" FontSize="12"/>
+
+                            <Button Content="📈 Seçilen Grafiği Çiz" Click="OnCompareTrendsClicked" FontWeight="Bold" Padding="10,4" FontSize="12"/>
+                        </WrapPanel>
+                        <TextBlock x:Name="TxtTrendStatus" Text="Grafik tipini ve günleri seçip çizebilirsiniz." FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" CornerRadius="6" Padding="8">
+                    <Canvas x:Name="TrendCanvas" ClipToBounds="True"/>
+                </Border>
+            </Grid>
+
+            <!-- ALARMLAR SAYFASI -->
+            <StackPanel Grid.Row="1" x:Name="PageAlarms" Spacing="10" IsVisible="False">
+                <Border Padding="15" CornerRadius="6">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="🚨 Alarm ve Eşik Yönetim Paneli" FontSize="15" FontWeight="Bold"/>
+                        <TextBlock Text="Cihaz bazlı High-High, High-Low ve Low-Low limitlerini yönetici şifresiyle belirleyin." FontSize="12"/>
+                        
+                        <Separator Margin="0,5"/>
+
+                        <TextBlock Text="🔒 Yönetici Yetki Doğrulama:" FontWeight="Bold" FontSize="12"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Admin Şifre:" VerticalAlignment="Center" FontSize="12"/>
+                            <TextBox x:Name="TxtAdminPassAlarm" Width="150" PasswordChar="*" FontSize="12"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,5"/>
+
+                        <TextBlock Text="⚙️ Cihaz Alarm Eşik Tanımlama" FontWeight="Bold" FontSize="12"/>
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Hedef Cihaz:" FontSize="11"/>
+                            <ComboBox x:Name="CmbAlarmDevice" Width="250" FontSize="12"/>
+                            
+                            <WrapPanel Orientation="Horizontal">
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="High-High (Kritik Yüksek):" FontSize="11"/>
+                                    <TextBox x:Name="TxtHighHigh" Width="100" Text="90" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="High (Yüksek Uyarı):" FontSize="11"/>
+                                    <TextBox x:Name="TxtHigh" Width="100" Text="75" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="Low-Low (Kritik Düşük):" FontSize="11"/>
+                                    <TextBox x:Name="TxtLowLow" Width="100" Text="10" FontSize="12"/>
+                                </StackPanel>
+                            </WrapPanel>
+                            <Button Content="💾 Alarm Eşiklerini Kaydet" Click="OnSaveAlarmThresholdsClicked" FontWeight="Bold" Padding="10,6" FontSize="12"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,5"/>
+                        <TextBlock Text="📋 Aktif Alarm Logları / Geçmişi:" FontWeight="Bold" FontSize="12"/>
+                        <ListBox x:Name="AlarmLogListBox" Height="140" FontFamily="Consolas" FontSize="12"/>
+
+                        <TextBlock x:Name="TxtAlarmStatus" Text="" FontSize="12" FontWeight="SemiBold" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- AYARLAR SAYFASI -->
+            <StackPanel Grid.Row="1" x:Name="PageSettings" Spacing="10" IsVisible="False">
+                <Border Padding="15" CornerRadius="6">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="⚙️ Sistem ve Cihaz Yönetim Paneli" FontSize="15" FontWeight="Bold"/>
+                        
+                        <!-- Kesintisiz Veri Güvencesi ve Tıklanabilir Supabase Paneli Linki -->
+                        <TextBlock Text="Bulut Veritabanı: Supabase PostgreSQL (Kesintisiz Eşitleme Aktif)" Foreground="#A6ADC8" FontSize="12"/>
+                        <TextBlock Text=" Supabase Proje Paneli " 
+                                   Foreground="#89B4FA" 
+                                   FontSize="12" 
+                                   TextWrapping="Wrap"
+                                   Cursor="Hand"
+                                   PointerPressed="OnSupabaseLinkClicked"/>
+                        
+                        <Separator Margin="0,5"/>
+
+                        <TextBlock Text="🔒 Yönetici Yetki Doğrulama:" FontWeight="Bold" FontSize="12"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Admin Şifre:" VerticalAlignment="Center" FontSize="12"/>
+                            <TextBox x:Name="TxtAdminPass" Width="150" PasswordChar="*" FontSize="12"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,5"/>
+
+                        <TextBlock Text="➕ Yeni PLC / Cihaz Ekle" FontWeight="Bold" FontSize="12"/>
+                        <WrapPanel Orientation="Horizontal">
+                            <StackPanel Margin="0,0,8,8">
+                                <TextBlock Text="PLC Adı:" FontSize="11"/>
+                                <TextBox x:Name="TxtNewName" Width="130" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,8,8">
+                                <TextBlock Text="IP Adresi:" FontSize="11"/>
+                                <TextBox x:Name="TxtNewIp" Width="120" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,8,8">
+                                <TextBlock Text="Rack:" FontSize="11"/>
+                                <TextBox x:Name="TxtNewRack" Width="50" Text="0" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,8,8">
+                                <TextBlock Text="Slot:" FontSize="11"/>
+                                <TextBox x:Name="TxtNewSlot" Width="50" Text="1" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,8,8">
+                                <TextBlock Text="DB No:" FontSize="11"/>
+                                <TextBox x:Name="TxtNewDb" Width="60" Text="100" FontSize="12"/>
+                            </StackPanel>
+                        </WrapPanel>
+                        <Button Content="💾 Güvenli Cihaz Kaydet" Click="OnAddDeviceClicked" FontWeight="Bold" Padding="10,6" FontSize="12"/>
+
+                        <Separator Margin="0,5"/>
+
+                        <TextBlock Text="🗑️ Cihaz Sil / Kaldır" FontWeight="Bold" FontSize="12"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ComboBox x:Name="CmbDevicesToDelete" Width="220" FontSize="12"/>
+                            <Button Content="❌ Seçili Cihazı Sil" Click="OnDeleteDeviceClicked" FontWeight="Bold" Padding="10,6" FontSize="12"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="TxtSettingsStatus" Text="" FontSize="12" FontWeight="SemiBold" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+        </Grid>
+    </Grid>
+</Window>
