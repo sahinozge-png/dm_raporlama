@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="plc_data_reader_cross_app.LoginWindow"
+        Title="SCADA - Kullanıcı Girişi" Width="1200" Height="750"
+        Background="{DynamicResource WindowBgColor}"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Border Background="{DynamicResource CardBgColor}" CornerRadius="10" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"
+                Width="380" Padding="24"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Spacing="12">
+                <TextBlock Text="🔐 SCADA Sistem Girişi" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryColor}" HorizontalAlignment="Center"/>
+                <TextBlock Text="Lütfen kullanıcı bilgilerinizi giriniz:" FontSize="11" Foreground="{DynamicResource TextSecondaryColor}" HorizontalAlignment="Center"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Kullanıcı Adı:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                    <TextBox x:Name="TxtUsername" FontSize="12" PlaceholderText="Kullanıcı adı giriniz"/>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Şifre:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                    <TextBox x:Name="TxtPassword" PasswordChar="*" FontSize="12" PlaceholderText="Şifre giriniz"/>
+                </StackPanel>
+
+                <TextBlock x:Name="TxtLoginError" Text="" Foreground="#EB5757" FontSize="11" HorizontalAlignment="Center"/>
+
+                <Button Content="Giriş Yap" Click="OnLoginClicked" FontWeight="Bold" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="10" Background="#3CD88D" Foreground="#151821"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

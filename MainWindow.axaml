@@ -1,0 +1,392 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="plc_data_reader_cross_app.MainWindow"
+        Title="PLC Endüstriyel SCADA &amp; Veri Yönetim Sistemi" Width="1200" Height="750"
+        Background="{DynamicResource WindowBgColor}"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid ColumnDefinitions="220, *">
+        <!-- SOL MENÜ -->
+        <Border Grid.Column="0" Background="{DynamicResource MenuBgColor}" Padding="12" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
+            <StackPanel Spacing="8">
+               
+                <!-- Logo & Profil (Tıklayınca Seçenek Çıkan Menü) -->
+                <Button Click="OnProfileButtonClicked" Background="Transparent" Padding="0" Margin="0,0,0,15" HorizontalAlignment="Stretch">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Border Width="36" Height="36" CornerRadius="18" Background="#3CD88D" HorizontalAlignment="Left">
+                            <TextBlock Text="SC" FontWeight="Bold" Foreground="#151821" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Özge Mühendislik" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <TextBlock x:Name="TxtUserRoleDisplay" Text="Kullanıcı Paneli" FontSize="10" Foreground="{DynamicResource TextSecondaryColor}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="🔄 Kullanıcı Değiştir / Çıkış Yap" Click="OnLogoutMenuClicked"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+                
+                <TextBlock Text="SİSTEM MENÜSÜ" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryColor}" Margin="0,5,0,5"/>
+                
+                <TextBlock Text="Aktif Cihaz / PLC:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                <ComboBox x:Name="CmbActiveDevices" FontSize="11" HorizontalAlignment="Stretch" SelectionChanged="OnSelectedDeviceChanged"/>
+                <Separator Margin="0,8" Background="{DynamicResource BorderColor}"/>
+
+                <Button x:Name="BtnNavLive" Classes="navbtn active" Content="📊 Canlı Akış" Click="OnNavLiveClicked" HorizontalAlignment="Stretch" FontSize="12" FontWeight="SemiBold" Padding="10,8"/>
+                <Button x:Name="BtnNavReport" Classes="navbtn" Content="📈 Raporlar &amp; Tablo" Click="OnNavReportClicked" HorizontalAlignment="Stretch" FontSize="12" FontWeight="SemiBold" Padding="10,8"/>
+                <Button x:Name="BtnNavTrends" Classes="navbtn" Content="📉 Trend &amp; Kıyas" Click="OnNavTrendsClicked" HorizontalAlignment="Stretch" FontSize="12" FontWeight="SemiBold" Padding="10,8"/>
+                <Button x:Name="BtnNavAlarms" Classes="navbtn" Content="🚨 Alarmlar" Click="OnNavAlarmsClicked" HorizontalAlignment="Stretch" FontSize="12" FontWeight="SemiBold" Padding="10,8"/>
+                <Button x:Name="BtnNavSettings" Classes="navbtn" Content="⚙️ Sistem Ayarları" Click="OnNavSettingsClicked" HorizontalAlignment="Stretch" FontSize="12" FontWeight="SemiBold" Padding="10,8"/>
+                <Button x:Name="BtnNavAdmin" Classes="navbtn" Content="👤 Kullanıcı Yönetimi" Click="OnNavAdminClicked" HorizontalAlignment="Stretch" FontSize="12" FontWeight="SemiBold" Padding="10,8" IsVisible="False"/>
+            </StackPanel>
+        </Border>
+
+        <!-- SAĞ ANA İÇERİK ALANI -->
+        <Grid Grid.Column="1" Margin="15" RowDefinitions="Auto, *">
+            
+            <!-- ÜST BAŞLIK VE TEMA BUTONU -->
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Endüstriyel Otomasyon &amp; Proses Veri Paneli" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryColor}"/>
+                    <TextBlock Text="Durum: Veri Akışı ve Senkronizasyon Aktif" FontSize="11" Foreground="#3CD88D"/>
+                </StackPanel>
+                <Button Grid.Column="1" x:Name="BtnThemeToggle" Content="☀️ Açık Tema" Click="OnThemeToggleClicked" FontWeight="Bold" Padding="12,6" FontSize="12"/>
+            </Grid>
+
+            <!-- CANLI İZLEME SAYFASI -->
+            <Grid Grid.Row="1" x:Name="PageLive" RowDefinitions="Auto, Auto, *" Margin="0" IsVisible="True">
+                <Border Grid.Row="0" Padding="12" CornerRadius="8" Margin="0,0,0,12" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                    <TextBlock Text="⚡ Canlı Tesis Veri Akış Paneli (DB100)" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryColor}"/>
+                </Border>
+
+                <Grid Grid.Row="1" ColumnDefinitions="*, *" Margin="0,0,0,12">
+                    <Border Grid.Column="0" CornerRadius="8" Margin="4" Padding="15" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <StackPanel Spacing="6" HorizontalAlignment="Center">
+                            <TextBlock Text="📊 PROSES DEĞERİ" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryColor}" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="TxtProcessValue" Text="0" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#3CD88D"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" CornerRadius="8" Margin="4" Padding="15" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <StackPanel Spacing="6" HorizontalAlignment="Center">
+                            <TextBlock Text="🔌 DURUM / KAYNAK" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryColor}" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="TxtSource" Text="Bekleniyor..." FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="#FF9900"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="2" CornerRadius="8" Padding="12" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                    <ListBox x:Name="LiveLogListBox" FontFamily="Consolas" FontSize="12"/>
+                </Border>
+            </Grid>
+
+            <!-- RAPORLAR SAYFASI -->
+            <Grid Grid.Row="1" x:Name="PageReport" RowDefinitions="Auto, *" Margin="0" IsVisible="False">
+                <Border Grid.Row="0" CornerRadius="8" Padding="12" Margin="0,0,0,12" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                    <StackPanel Spacing="10">
+                        <WrapPanel Orientation="Horizontal">
+                            <TextBlock Text="Rapor Yılı:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <ComboBox x:Name="CmbYear" Width="100" Margin="0,0,15,0" FontSize="12"/>
+
+                            <ComboBox x:Name="CmbMonth" IsVisible="False"/>
+                            <ComboBox x:Name="CmbDay" IsVisible="False"/>
+                            <ComboBox x:Name="CmbReportPeriod" IsVisible="False"/>
+
+                            <Button Content="📁 Raporu CSV Dışa Aktar" Click="OnExportCsvClicked" FontWeight="Bold" Padding="12,6" FontSize="12"/>
+                        </WrapPanel>
+                        <TextBlock x:Name="TxtStatsSummary" Text="Yıl seçip aylar, haftalar ve günler üzerinde tıklayarak detaylı inceleme yapabilirsiniz." FontSize="12" FontWeight="SemiBold" Foreground="#3CD88D"/>
+
+                        <!-- ÇOKLU CİHAZ VE TARİH ARALIĞI İLE EXCEL RAPORU -->
+                        <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" Padding="10" Background="{DynamicResource CardAltBgColor}">
+                            <StackPanel Spacing="8">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Text="📅 Çoklu Cihaz ve Tarih Aralığına Göre Excel Raporu" FontSize="12" FontWeight="Bold" Foreground="#3CD88D" VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1" Content="➕ Yeni Cihaz Ekle (+)" Click="OnAddReportDeviceRowClicked" FontWeight="Bold" Padding="10,4" FontSize="11"/>
+                                </Grid>
+
+                                <ScrollViewer MaxHeight="130" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                    <StackPanel x:Name="ReportDeviceRowsContainer" Spacing="6">
+                                        <Border Background="{DynamicResource CardBgColor}" Padding="6" CornerRadius="4" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                                            <WrapPanel Orientation="Horizontal">
+                                                <TextBlock Text="Cihaz 1 -> Seçim:" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="#A0AEC0"/>
+                                                <ComboBox Width="200" Margin="0,0,10,0" FontSize="11" Tag="ReportDevice"/>
+                                            </WrapPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </ScrollViewer>
+
+                                <WrapPanel Orientation="Horizontal">
+                                    <TextBlock Text="Başlangıç:" VerticalAlignment="Center" Margin="0,0,6,0" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <DatePicker x:Name="DpReportStart" Width="150" Margin="0,0,10,0" FontSize="12"/>
+
+                                    <TextBlock Text="Bitiş:" VerticalAlignment="Center" Margin="0,0,6,0" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <DatePicker x:Name="DpReportEnd" Width="150" Margin="0,0,10,0" FontSize="12"/>
+
+                                    <TextBlock Text="Periyot:" VerticalAlignment="Center" Margin="0,0,6,0" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <ComboBox x:Name="CmbExcelPeriod" Width="100" Margin="0,0,10,0" FontSize="12"/>
+
+                                    <Button Content="📊 Excel'e Aktar" Click="OnExportMultiDeviceExcelClicked" FontWeight="Bold" Padding="12,6" FontSize="12" Background="#3CD88D" Foreground="#151821"/>
+                                </WrapPanel>
+                                <TextBlock x:Name="TxtExcelStatus" Text="İstediğiniz kadar cihaz ekleyip, seçilen tarih aralığında periyot kırılımlı (Gün/Hafta/Ay/Yıl) Excel raporu alabilirsiniz." FontSize="11" Foreground="{DynamicResource TextSecondaryColor}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- 4 Kolonlu Kart Yapısı -->
+                <Grid Grid.Row="1" ColumnDefinitions="*, *, *, *" Margin="2">
+                    <Border Grid.Column="0" Margin="4" Padding="10" CornerRadius="8" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="📅 YIL" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" FontSize="12" Foreground="#3CD88D"/>
+                            <ListBox x:Name="ListColYear" FontFamily="Consolas" FontSize="11"/>
+                        </DockPanel>
+                    </Border>
+                    <Border Grid.Column="1" Margin="4" Padding="10" CornerRadius="8" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="📆 AYLAR (Tıkla)" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" FontSize="12" Foreground="#2D9CDB"/>
+                            <ListBox x:Name="ListColMonth" FontFamily="Consolas" FontSize="11"/>
+                        </DockPanel>
+                    </Border>
+                    <Border Grid.Column="2" Margin="4" Padding="10" CornerRadius="8" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="📊 HAFTALAR (Tıkla)" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" FontSize="12" Foreground="#FF9900"/>
+                            <ListBox x:Name="ListColWeek" FontFamily="Consolas" FontSize="11"/>
+                        </DockPanel>
+                    </Border>
+                    <Border Grid.Column="3" Margin="4" Padding="10" CornerRadius="8" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="⏰ GÜN / SAAT" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8" FontSize="12" Foreground="#BB86FC"/>
+                            <ListBox x:Name="ListColDay" FontFamily="Consolas" FontSize="11"/>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <!-- TRENDLER SAYFASI -->
+            <Grid Grid.Row="1" x:Name="PageTrends" RowDefinitions="Auto, *" Margin="0" IsVisible="False">
+                <Border Grid.Row="0" CornerRadius="8" Padding="12" Margin="0,0,0,12" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                    <StackPanel Spacing="10">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <TextBlock Text="📉 Çoklu Cihaz ve Zaman Trend Kıyaslama" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryColor}" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="➕ Yeni Seri Ekle (+)" Click="OnAddTrendSeriesClicked" FontWeight="Bold" Padding="10,5" FontSize="11"/>
+                        </Grid>
+
+                        <ScrollViewer MaxHeight="150" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="TrendSeriesContainer" Spacing="8">
+                                <Border Background="{DynamicResource CardAltBgColor}" Padding="8" CornerRadius="6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                                    <WrapPanel Orientation="Horizontal">
+                                        <TextBlock Text="Seri 1 -> Cihaz:" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="#A0AEC0"/>
+                                        <ComboBox Width="140" Margin="0,0,10,0" FontSize="11" Tag="Device"/>
+                                        
+                                        <TextBlock Text="Yıl:" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="#A0AEC0"/>
+                                        <ComboBox Width="75" Margin="0,0,10,0" FontSize="11" Tag="Year"/>
+
+                                        <TextBlock Text="Ay:" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="#A0AEC0"/>
+                                        <ComboBox Width="75" Margin="0,0,10,0" FontSize="11" Tag="Month"/>
+
+                                        <TextBlock Text="Gün:" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11" Foreground="#A0AEC0"/>
+                                        <ComboBox Width="60" Margin="0,0,10,0" FontSize="11" Tag="Day"/>
+                                    </WrapPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+                            <TextBlock Text="Grafik Tipi:" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <ComboBox x:Name="CmbChartType" Width="140" FontSize="12"/>
+                            <Button Content="📈 Grafiği Çiz" Click="OnCompareTrendsClicked" FontWeight="Bold" Padding="12,6" FontSize="12"/>
+                            <Button Content="📄 PDF Raporu Çıkart" Click="OnExportTrendsPdfClicked" FontWeight="Bold" Padding="12,6" FontSize="12" Background="#2D9CDB" Foreground="White"/>
+                        </StackPanel>
+                        <TextBlock x:Name="TxtTrendStatus" Text="İstediğiniz kadar seri ekleyip çoklu kıyaslama grafiği çizebilir ve PDF olarak dışa aktarabilirsiniz." FontSize="12" Foreground="{DynamicResource TextSecondaryColor}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" CornerRadius="8" Padding="10" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                    <Canvas x:Name="TrendCanvas" ClipToBounds="True"/>
+                </Border>
+            </Grid>
+
+            <!-- ALARMLAR SAYFASI -->
+            <StackPanel Grid.Row="1" x:Name="PageAlarms" Spacing="12" IsVisible="False">
+                <Border Padding="15" CornerRadius="8" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="🚨 Alarm ve Eşik Yönetim Paneli" FontSize="15" FontWeight="Bold" Foreground="#EB5757"/>
+                        
+                        <Separator Margin="0,5" Background="{DynamicResource BorderColor}"/>
+
+                        <TextBlock Text="🔒 Yönetici Yetki Doğrulama:" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="Admin Şifre:" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <TextBox x:Name="TxtAdminPassAlarm" Width="170" PasswordChar="*" FontSize="12"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,5" Background="{DynamicResource BorderColor}"/>
+
+                        <TextBlock Text="⚙️ Cihaz Alarm Eşik Tanımlama" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Hedef Cihaz:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <ComboBox x:Name="CmbAlarmDevice" Width="280" FontSize="12"/>
+                            
+                            <WrapPanel Orientation="Horizontal">
+                                <StackPanel Margin="0,0,15,0">
+                                    <TextBlock Text="High-High (Kritik):" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <TextBox x:Name="TxtHighHigh" Width="110" Text="90" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,15,0">
+                                    <TextBlock Text="High (Uyarı):" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <TextBox x:Name="TxtHigh" Width="110" Text="75" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,15,0">
+                                    <TextBlock Text="Low-Low (Düşük):" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <TextBox x:Name="TxtLowLow" Width="110" Text="10" FontSize="12"/>
+                                </StackPanel>
+                            </WrapPanel>
+                            <Button Content="💾 Eşik Değerlerini Kaydet" Click="OnSaveAlarmThresholdsClicked" FontWeight="Bold" Padding="12,8" FontSize="12"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,5" Background="{DynamicResource BorderColor}"/>
+                        <TextBlock Text="📋 Aktif Alarm Logları / Geçmişi:" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                        <ListBox x:Name="AlarmLogListBox" Height="100" FontFamily="Consolas" FontSize="12"/>
+                        <Button Content="🚨 Alarma Müdahale Et / Tepki Ver" Click="OnAcknowledgeAlarmClicked" Background="#EB5757" Foreground="White" FontWeight="Bold" FontSize="12"/>
+
+                        <TextBlock x:Name="TxtAlarmStatus" Text="" FontSize="12" FontWeight="SemiBold" Foreground="#3CD88D" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- KULLANICI & AKTİVİTE YÖNETİMİ SAYFASI -->
+            <StackPanel Grid.Row="1" x:Name="PageAdmin" Spacing="12" IsVisible="False">
+                <Border Padding="15" CornerRadius="8" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                    <ScrollViewer MaxHeight="550" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="👤 Kullanıcı &amp; Aktivite Yönetim Paneli (Admin)" FontSize="15" FontWeight="Bold" Foreground="#3CD88D"/>
+                            
+                            <Separator Margin="0,5" Background="{DynamicResource BorderColor}"/>
+                            <TextBlock Text="➕ Yeni Kullanıcı Oluştur:" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            
+                            <WrapPanel Orientation="Horizontal">
+                                <StackPanel Margin="0,0,10,10">
+                                    <TextBlock Text="Admin Şifreniz:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <TextBox x:Name="TxtNewUserAdminPass" Width="130" PasswordChar="*" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,10,10">
+                                    <TextBlock Text="Yeni Kullanıcı Adı:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <TextBox x:Name="TxtNewUsername" Width="130" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,10,10">
+                                    <TextBlock Text="Şifre:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <TextBox x:Name="TxtNewUserPass" Width="110" PasswordChar="*" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,10,10">
+                                    <TextBlock Text="Rol:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                    <ComboBox x:Name="CmbNewUserRole" Width="110" FontSize="12">
+                                        <ComboBoxItem Content="Operator"/>
+                                        <ComboBoxItem Content="Admin"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </WrapPanel>
+                            <Button Content="💾 Kullanıcıyı Kaydet" Click="OnCreateNewUserClicked" FontWeight="Bold" Padding="12,6" FontSize="12" Background="#3CD88D" Foreground="#151821"/>
+
+                            <Separator Margin="0,5" Background="{DynamicResource BorderColor}"/>
+                            <TextBlock Text="🔑 Kullanıcı Şifre Güncelle / Yönet:" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <WrapPanel Orientation="Horizontal">
+                                <ComboBox x:Name="CmbUsersList" Width="180" FontSize="12" Margin="0,0,10,0"/>
+                                <TextBox x:Name="TxtUpdateUserPass" Width="140" PasswordChar="*" PlaceholderText="Yeni Şifre" FontSize="12" Margin="0,0,10,0"/>
+                                <Button Content="🔄 Şifreyi Güncelle" Click="OnUpdateUserPassClicked" FontWeight="Bold" Padding="12,6" FontSize="12"/>
+                            </WrapPanel>
+
+                            <Separator Margin="0,5" Background="{DynamicResource BorderColor}"/>
+                            <TextBlock Text="📊 Kullanıcı Aktivite Geçmişi (İndirilen Raporlar &amp; Alarm Tepkileri):" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <ListBox x:Name="ActivityLogListBox" Height="150" FontFamily="Consolas" FontSize="11"/>
+
+                            <TextBlock x:Name="TxtAdminStatus" Text="" FontSize="12" FontWeight="SemiBold" Foreground="#3CD88D" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+
+            <!-- AYARLAR SAYFASI -->
+            <StackPanel Grid.Row="1" x:Name="PageSettings" Spacing="12" IsVisible="False">
+                <Border Padding="15" CornerRadius="8" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="⚙️ Sistem ve Cihaz Yönetim Paneli" FontSize="15" FontWeight="Bold" Foreground="#2D9CDB"/>
+                        
+                        <TextBlock Text="Bulut Veritabanı: Supabase PostgreSQL (Kesintisiz Eşitleme Aktif)" Foreground="{DynamicResource TextPrimaryColor}" FontSize="12"/>
+                        <TextBlock Text=" Supabase Proje Paneli " 
+                                   Foreground="#2D9CDB" 
+                                   FontSize="12" 
+                                   TextWrapping="Wrap"
+                                   Cursor="Hand"
+                                   PointerPressed="OnSupabaseLinkClicked"/>
+                        
+                        <Separator Margin="0,5" Background="{DynamicResource BorderColor}"/>
+
+                        <TextBlock Text="🔒 Yönetici Yetki Doğrulama:" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="Admin Şifre:" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                            <TextBox x:Name="TxtAdminPass" Width="170" PasswordChar="*" FontSize="12"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,5" Background="{DynamicResource BorderColor}"/>
+
+                        <TextBlock Text="➕ Yeni PLC / Cihaz Ekle" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                        <WrapPanel Orientation="Horizontal">
+                            <StackPanel Margin="0,0,10,10">
+                                <TextBlock Text="PLC Adı:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                <TextBox x:Name="TxtNewName" Width="140" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,10">
+                                <TextBlock Text="IP Adresi:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                <TextBox x:Name="TxtNewIp" Width="130" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,10">
+                                <TextBlock Text="Rack:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                <TextBox x:Name="TxtNewRack" Width="60" Text="0" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,10">
+                                <TextBlock Text="Slot:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                <TextBox x:Name="TxtNewSlot" Width="60" Text="1" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,10">
+                                <TextBlock Text="DB No:" FontSize="11" Foreground="{DynamicResource TextPrimaryColor}"/>
+                                <TextBox x:Name="TxtNewDb" Width="70" Text="100" FontSize="12"/>
+                            </StackPanel>
+                        </WrapPanel>
+                        <Button Content="💾 Güvenli Cihaz Kaydet" Click="OnAddDeviceClicked" FontWeight="Bold" Padding="12,8" FontSize="12"/>
+
+                        <Separator Margin="0,5" Background="{DynamicResource BorderColor}"/>
+
+                        <TextBlock Text="🗑️ Cihaz Sil / Kaldır" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryColor}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <ComboBox x:Name="CmbDevicesToDelete" Width="240" FontSize="12"/>
+                            <Button Content="❌ Seçili Cihazı Sil" Click="OnDeleteDeviceClicked" FontWeight="Bold" Padding="12,8" FontSize="12"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="TxtSettingsStatus" Text="" FontSize="12" FontWeight="SemiBold" Foreground="#3CD88D" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+        </Grid>
+
+        <!-- KAPANMA ŞİFRE KORUMA OVERLAY KATI -->
+        <Border x:Name="CloseAuthOverlay" Grid.ColumnSpan="2" Background="#99000000" IsVisible="False" ZIndex="999">
+            <Border Width="360" Height="190" Background="{DynamicResource CardBgColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="8" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20">
+                <StackPanel Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="🔒 SCADA Uygulamasını Kapat" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryColor}" FontSize="14"/>
+                    <TextBlock Text="Uygulamayı kapatmak için admin şifresi gerekli:" Foreground="{DynamicResource TextSecondaryColor}" FontSize="11" TextWrapping="Wrap"/>
+                    
+                    <TextBox x:Name="TxtClosePassword" PasswordChar="*" PlaceholderText="Admin Şifresi" FontSize="12"/>
+                    <TextBlock x:Name="TxtCloseError" Text="" Foreground="#EB5757" FontSize="11"/>
+
+                    <Grid ColumnDefinitions="*, *" Margin="0,5,0,0">
+                        <Button Grid.Column="0" Content="İptal" Click="OnCancelCloseClicked" Margin="0,0,5,0" HorizontalAlignment="Stretch"/>
+                        <Button Grid.Column="1" Content="Onayla &amp; Kapat" Click="OnConfirmCloseClicked" Margin="5,0,0,0" HorizontalAlignment="Stretch"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</Window>

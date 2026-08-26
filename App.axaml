@@ -1,0 +1,99 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="plc_data_reader_cross_app.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+
+                <!-- ================= KOYU TEMA ================= -->
+                <ResourceDictionary x:Key="Dark">
+                    <!-- Ana pencere zemini: düz siyah yerine mavi-lacivert tonlu, daha "profesyonel" bir koyu zemin -->
+                    <SolidColorBrush x:Key="WindowBgColor">#0B0F1A</SolidColorBrush>
+
+                    <!-- Sol menü: pencere zemininden hafif farklı, hafif mor-lacivert yansımalı -->
+                    <SolidColorBrush x:Key="MenuBgColor">#11162A</SolidColorBrush>
+
+                    <!-- Kartlar: zeminden belirgin ayrışan, hafif çelik-mavi ton -->
+                    <SolidColorBrush x:Key="CardBgColor">#1A2036</SolidColorBrush>
+
+                    <!-- Kart içi ikinci seviye paneller (Excel kutusu, trend serisi kutuları, dialoglar) -->
+                    <SolidColorBrush x:Key="CardAltBgColor">#141A2C</SolidColorBrush>
+
+                    <!-- Kenarlıklar: nötr gri yerine hafif mavi tonlu, kartlara zarafet katan kenarlık -->
+                    <SolidColorBrush x:Key="BorderColor">#2B3454</SolidColorBrush>
+
+                    <!-- Metinler -->
+                    <SolidColorBrush x:Key="TextPrimaryColor">#EEF2FA</SolidColorBrush>
+                    <SolidColorBrush x:Key="TextSecondaryColor">#8D97B5</SolidColorBrush>
+
+                    <!-- Marka / vurgu renkleri (her iki temada da sabit kalır, kimliği korur) -->
+                    <SolidColorBrush x:Key="AccentPrimaryColor">#3CD88D</SolidColorBrush>
+                    <SolidColorBrush x:Key="AccentBlueColor">#3B9EFF</SolidColorBrush>
+                    <SolidColorBrush x:Key="AccentOrangeColor">#FFA633</SolidColorBrush>
+                    <SolidColorBrush x:Key="AccentPurpleColor">#B18CFF</SolidColorBrush>
+
+                    <!-- Menüde seçili sayfa vurgusu -->
+                    <SolidColorBrush x:Key="NavSelectedBgColor">#22304F</SolidColorBrush>
+                    <SolidColorBrush x:Key="NavHoverBgColor">#182140</SolidColorBrush>
+                </ResourceDictionary>
+
+                <!-- ================= AÇIK TEMA ================= -->
+                <ResourceDictionary x:Key="Light">
+                    <!-- Ana pencere zemini: yumuşak gri-mavi, göz yormayan profesyonel açık zemin -->
+                    <SolidColorBrush x:Key="WindowBgColor">#EEF1F8</SolidColorBrush>
+
+                    <!-- Sol menü: beyaza yakın, hafif mavi-gri -->
+                    <SolidColorBrush x:Key="MenuBgColor">#FFFFFF</SolidColorBrush>
+
+                    <!-- Kartlar: beyaz, hafif gölgeli görünüm için kenarlıkla desteklenir -->
+                    <SolidColorBrush x:Key="CardBgColor">#FFFFFF</SolidColorBrush>
+
+                    <!-- Kart içi ikinci seviye paneller -->
+                    <SolidColorBrush x:Key="CardAltBgColor">#F3F5FB</SolidColorBrush>
+
+                    <!-- Kenarlıklar: yumuşak gri-mavi -->
+                    <SolidColorBrush x:Key="BorderColor">#DCE1EE</SolidColorBrush>
+
+                    <!-- Metinler -->
+                    <SolidColorBrush x:Key="TextPrimaryColor">#1B2137</SolidColorBrush>
+                    <SolidColorBrush x:Key="TextSecondaryColor">#5B6480</SolidColorBrush>
+
+                    <!-- Marka / vurgu renkleri (koyu temayla tutarlı, ama açık zeminde okunur tonlar) -->
+                    <SolidColorBrush x:Key="AccentPrimaryColor">#1FAE73</SolidColorBrush>
+                    <SolidColorBrush x:Key="AccentBlueColor">#1D7FE0</SolidColorBrush>
+                    <SolidColorBrush x:Key="AccentOrangeColor">#E08A00</SolidColorBrush>
+                    <SolidColorBrush x:Key="AccentPurpleColor">#7C5CE0</SolidColorBrush>
+
+                    <!-- Menüde seçili sayfa vurgusu -->
+                    <SolidColorBrush x:Key="NavSelectedBgColor">#E4EBFB</SolidColorBrush>
+                    <SolidColorBrush x:Key="NavHoverBgColor">#F1F4FC</SolidColorBrush>
+                </ResourceDictionary>
+
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <!-- Sol menü navigasyon butonları için özel stil -->
+        <Style Selector="Button.navbtn">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryColor}" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        </Style>
+        <Style Selector="Button.navbtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource NavHoverBgColor}" />
+        </Style>
+        <Style Selector="Button.navbtn.active">
+            <Setter Property="Background" Value="{DynamicResource NavSelectedBgColor}" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryColor}" />
+        </Style>
+        <Style Selector="Button.navbtn.active /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource NavSelectedBgColor}" />
+        </Style>
+    </Application.Styles>
+</Application>
